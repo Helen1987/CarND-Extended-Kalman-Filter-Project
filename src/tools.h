@@ -5,14 +5,8 @@
 
 class Tools {
 public:
-  /**
-  * Constructor.
-  */
-  Tools();
 
-  /**
-  * Destructor.
-  */
+  Tools();
   virtual ~Tools();
 
   /**
