@@ -18,8 +18,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   //  * the estimation vector size should not be zero
   //  * the estimation vector size should equal ground truth vector size
   if ((estimations.size() != ground_truth.size()) || (estimations.size() == 0)) {
-    std::cout << "The estimation vector size should not be zero and equal ground truth vector size" << std::endl;
-    return rmse;
+    throw std::invalid_argument("The estimation vector size should not be zero and equal ground truth vector size");
   }
 
   //accumulate squared residuals
@@ -42,20 +41,15 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   MatrixXd Hj(3, 4);
 
   //recover state parameters
-  float px = x_state(0);
-  float py = x_state(1);
-  float vx = x_state(2);
-  float vy = x_state(3);
+  double px = x_state(0);
+  double py = x_state(1);
+  double vx = x_state(2);
+  double vy = x_state(3);
 
   //check division by zero
   double sq_sum = px*px + py*py;
   if (abs(sq_sum) < 0.01) {
-    std::cout << "CalculateJacobian () - Errordivision by zero" << std::endl;
-    Hj << 0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0;
-    std::cout << Hj << std::endl;
-    return Hj;
+    throw std::invalid_argument("CalculateJacobian () - Error division by zero");
   }
 
   //compute the Jacobian matrix
