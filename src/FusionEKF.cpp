@@ -53,8 +53,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.x_ << 1, 1, 1, 1;
     ekf_.Q_ = MatrixXd(4, 4);
 
+    // ignore zero-values measurements and
     // wait for sufficient measurement
-    if (abs(pow(measurement_pack.raw_measurements_(0), 2) + pow(measurement_pack.raw_measurements_(1), 2)) < negligible)
+    if (std::abs(pow(measurement_pack.raw_measurements_(0), 2) + pow(measurement_pack.raw_measurements_(1), 2)) < negligible)
       return;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
@@ -92,17 +93,21 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
   previous_timestamp_ = measurement_pack.timestamp_;
 
-  ekf_.F_(0, 2) = dt;
-  ekf_.F_(1, 3) = dt;
-  double noise_ax = 9;
-  double noise_ay = 9;
+  // it dt is too small, consider it as two measurements come at the same time,
+  // so ignore prediction step
+  if (dt > negligible) {
+    ekf_.F_(0, 2) = dt;
+    ekf_.F_(1, 3) = dt;
+    double noise_ax = 9;
+    double noise_ay = 9;
 
-  ekf_.Q_ << pow(dt, 4)*noise_ax / 4, 0, pow(dt, 3)*noise_ax / 2, 0,
-    0, pow(dt, 4)*noise_ay / 4, 0, pow(dt, 3)*noise_ay / 2,
-    pow(dt, 3)*noise_ax / 2, 0, pow(dt, 2)*noise_ax, 0,
-    0, pow(dt, 3)*noise_ay / 2, 0, pow(dt, 2)*noise_ay;
+    ekf_.Q_ <<  pow(dt, 4)*noise_ax/4,  0,                      pow(dt, 3)*noise_ax/2,0,
+                0,                      pow(dt, 4)*noise_ay/4,  0,                    pow(dt, 3)*noise_ay/2,
+                pow(dt, 3)*noise_ax/2,  0,                      pow(dt, 2)*noise_ax,  0,
+                0,                      pow(dt, 3)*noise_ay/2,  0,                    pow(dt, 2)*noise_ay;
 
-  ekf_.Predict();
+    ekf_.Predict();
+  }
 
   /*****************************************************************************
    *  Update
@@ -121,7 +126,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.Update(measurement_pack.raw_measurements_);
     }
   }
-  catch (std::invalid_argument exception) {
+  // if we have zero
+  catch (jacobian_calculus exception) {
     std::cout << "Moved to next measurement: " << exception.what() << std::endl;
   }
 

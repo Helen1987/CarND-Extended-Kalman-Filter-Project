@@ -48,8 +48,8 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
   //check division by zero
   double sq_sum = px*px + py*py;
-  if (abs(sq_sum) < 0.01) {
-    throw std::invalid_argument("CalculateJacobian () - Error division by zero");
+  if (std::abs(sq_sum) < 0.0001) {
+    throw jacobian_calculus("CalculateJacobian () - Error division by zero");
   }
 
   //compute the Jacobian matrix
