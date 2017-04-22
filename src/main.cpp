@@ -32,7 +32,7 @@ void check_arguments(int argc, char* argv[]) {
   }
 
   if (!has_valid_args) {
-    std::cin.get();
+    // std::cin.get();
     exit(EXIT_FAILURE);
   }
 }
@@ -41,13 +41,13 @@ void check_files(ifstream& in_file, string& in_name,
                  ofstream& out_file, string& out_name) {
   if (!in_file.is_open()) {
     cerr << "Cannot open input file: " << in_name << endl;
-    std::cin.get();
+    // std::cin.get();
     exit(EXIT_FAILURE);
   }
 
   if (!out_file.is_open()) {
     cerr << "Cannot open output file: " << out_name << endl;
-    std::cin.get();
+    // std::cin.get();
     exit(EXIT_FAILURE);
   }
 }
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
     in_file_.close();
   }
 
-  std::cin.get();
+  // std::cin.get();
 
   return 0;
 }
